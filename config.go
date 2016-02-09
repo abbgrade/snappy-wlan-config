@@ -1,7 +1,7 @@
 package main
 
 import (
-	config "./config"
+	config "github.com/abbgrade/snappy-wlan-config/config"
 	"io/ioutil"
 	"os"
 )

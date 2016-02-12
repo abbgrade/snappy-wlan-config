@@ -8,8 +8,12 @@ import (
 )
 
 type Config struct {
-	SSID string
-	PSK  string
+	Config struct {
+		WLAN struct {
+			SSID string
+			PSK  string
+		}
+	}
 }
 
 func (config *Config) Init() {

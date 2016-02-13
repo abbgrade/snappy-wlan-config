@@ -36,14 +36,14 @@ func (config *NetworkConfig) Export(file *os.File) {
 
 	fmt.Fprintf(file, "network={\n")
 	if config.ID != "" {
-		fmt.Fprintf(file, "\tid_str=%v\n", config.ID)
+		fmt.Fprintf(file, "\tid_str=\"%v\"\n", config.ID)
 	}
 
 	switch {
 	case config.Protocol == "WPA2" || config.Protocol == "RSN":
-		fmt.Fprintf(file, "\tproto=%v\n", "RSN")
+		fmt.Fprintf(file, "\tproto=\"%v\"\n", "RSN")
 	case config.Protocol == "WPA":
-		fmt.Fprintf(file, "\tproto=%v\n", "WPA")
+		fmt.Fprintf(file, "\tproto=\"%v\"\n", "WPA")
 	case config.Protocol == "WEP":
 	case config.Protocol == "":
 	default:
@@ -53,10 +53,10 @@ func (config *NetworkConfig) Export(file *os.File) {
 	if config.SSID == "" {
 		Warning.Fatalln("SSID is required")
 	}
-	fmt.Fprintf(file, "\tssid=%v\n", config.SSID)
+	fmt.Fprintf(file, "\tssid=\"%v\"\n", config.SSID)
 
 	if config.ScanSSID != "" {
-		fmt.Fprintf(file, "\tscan_ssid=%v\n", config.ScanSSID)
+		fmt.Fprintf(file, "\tscan_ssid=\"%v\"\n", config.ScanSSID)
 	}
 
 	if config.PSK == "" {
@@ -64,30 +64,30 @@ func (config *NetworkConfig) Export(file *os.File) {
 	}
 
 	if config.Protocol == "WEP" {
-		fmt.Fprintf(file, "\twep_tx_keyidx=%v\n", 0)
-		fmt.Fprintf(file, "\twep_key0=%v\n", config.PSK)
+		fmt.Fprintf(file, "\twep_tx_keyidx=\"%v\"\n", 0)
+		fmt.Fprintf(file, "\twep_key0=\"%v\"\n", config.PSK)
 	} else {
-		fmt.Fprintf(file, "\tpsk=%v\n", config.PSK)
+		fmt.Fprintf(file, "\tpsk=\"%v\"\n", config.PSK)
 	}
 
 	if config.KeyManagement != "" {
-		fmt.Fprintf(file, "\tkey_mgmt=%v\n", config.KeyManagement)
+		fmt.Fprintf(file, "\tkey_mgmt=\"%v\"\n", config.KeyManagement)
 	}
 
 	if config.Pairwise != "" {
-		fmt.Fprintf(file, "\tpairwise=%v\n", config.Pairwise)
+		fmt.Fprintf(file, "\tpairwise=\"%v\"\n", config.Pairwise)
 	}
 
 	if config.Group != "" {
-		fmt.Fprintf(file, "\tgroup=%v\n", config.Group)
+		fmt.Fprintf(file, "\tgroup=\"%v\"\n", config.Group)
 	}
 
 	if config.AuthAlgorithm != "" {
-		fmt.Fprintf(file, "\tauth_alg=%v\n", config.AuthAlgorithm)
+		fmt.Fprintf(file, "\tauth_alg=\"%v\"\n", config.AuthAlgorithm)
 	}
 
 	if config.Priority != "" {
-		fmt.Fprintf(file, "\tpriority=%v\n", config.Priority)
+		fmt.Fprintf(file, "\tpriority=\"%v\"\n", config.Priority)
 	}
 
 	fmt.Fprintf(file, "}\n")

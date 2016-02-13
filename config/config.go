@@ -34,11 +34,6 @@ type ConfigMessage struct {
 
 func (config *NetworkConfig) Export(file *os.File) {
 
-	if config.Interface == "" {
-		Info.Fatalln("Using defualt interface wlan0")
-		config.Interface = "wlan0"
-	}
-
 	fmt.Fprintf(file, "network={\n")
 	if config.ID != "" {
 		fmt.Fprintf(file, "\tid_str=%v\n", config.ID)
@@ -161,6 +156,9 @@ func (config *Config) Export(interfacesDirPath string) {
 	interfaces := make(map[string][]NetworkConfig)
 
 	for _, network := range config.Networks {
+		if network.Interface == "" {
+			network.Interface = "wlan0"
+		}
 		interfaces[network.Interface] = append(interfaces[network.Interface], network)
 	}
 

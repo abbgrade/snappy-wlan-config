@@ -32,15 +32,19 @@ func (config *WlanConfig) Save(path string) {
 
 func (config *WlanConfig) Load(path string) {
 
-	// Read the file
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		Warning.Fatalf("load: %v", err)
-	}
+	// Does the file exist?
+	if _, err := os.Stat(path); err == nil {
 
-	// Parse the YAML
-	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
-		Warning.Fatalf("parse: %v", err)
+		// Read the file
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			Warning.Fatalf("load: %v", err)
+		}
+
+		// Parse the YAML
+		if err := yaml.Unmarshal([]byte(data), &config); err != nil {
+			Warning.Fatalf("parse: %v", err)
+		}
 	}
 
 }

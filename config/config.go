@@ -8,17 +8,25 @@ import (
 )
 
 type WlanConfig struct {
-	SSID string
-	PSK  string
+	Interface string
+	SSID      string
+	PSK       string
+}
+
+type Config struct {
+	Networks  []WlanConfig
+	Interface string // legacy
+	SSID      string // legacy
+	PSK       string // legacy
 }
 
 type ConfigMessage struct {
 	Config struct {
-		WLAN WlanConfig
+		WLAN Config
 	}
 }
 
-func (config *WlanConfig) Save(path string) {
+func (config *Config) Save(path string) {
 
 	// Dump the YAML
 	data, err := yaml.Marshal(&config)
@@ -30,39 +38,75 @@ func (config *WlanConfig) Save(path string) {
 	ioutil.WriteFile(path, data, 0644)
 }
 
-func (config *WlanConfig) Load(path string) {
+func (config *Config) Load(path string) {
 
 	// Does the file exist?
-	if _, err := os.Stat(path); err == nil {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
 
-		// Read the file
-		data, err := ioutil.ReadFile(path)
-		if err != nil {
-			Warning.Fatalf("load: %v", err)
-		}
+	// Read the file
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		Warning.Fatalf("load: %v", err)
+	}
 
-		// Parse the YAML
-		if err := yaml.Unmarshal([]byte(data), &config); err != nil {
-			Warning.Fatalf("parse: %v", err)
-		}
+	Trace.Printf("loaded %v", string(data))
+
+	// Parse the YAML
+	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
+		Warning.Fatalf("parse: %v", err)
 	}
 
 }
 
-func (config *WlanConfig) Merge(branch WlanConfig) {
+func (config *Config) Extend(element WlanConfig) {
+	n := len(config.Networks)
+	if n == cap(config.Networks) {
+		newSlice := make([]WlanConfig, len(config.Networks), 2*len(config.Networks)+1)
+		copy(newSlice, config.Networks)
+		config.Networks = newSlice
+	}
+	config.Networks = config.Networks[0 : n+1]
+	config.Networks[n] = element
 
-	if branch.SSID != "" {
-		config.SSID = branch.SSID
+}
+
+func (config *Config) Upgrade() {
+
+	// Move network outside of the array
+	if config.Interface == "" &&
+		config.SSID == "" &&
+		config.PSK == "" {
+
+		return
 	}
 
-	if branch.PSK != "" {
-		config.PSK = branch.PSK
+	// Move network into the array
+	legacyNetwork := WlanConfig{}
+
+	legacyNetwork.Interface = config.Interface
+	legacyNetwork.SSID = config.SSID
+	legacyNetwork.PSK = config.PSK
+
+	config.Interface = ""
+	config.SSID = ""
+	config.PSK = ""
+
+	config.Extend(legacyNetwork)
+}
+
+func (config *Config) Merge(branch Config) {
+
+	// Merge networks
+	if len(branch.Networks) > 0 {
+		config.Networks = branch.Networks
 	}
 }
 
 func (config *ConfigMessage) Scan() {
 
-	// Read from StandardIn
+	// Read from standard-in
 	data, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		Warning.Fatalf("scan: %v", err)

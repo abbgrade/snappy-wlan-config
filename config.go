@@ -17,8 +17,15 @@ func main() {
 	}
 	configPath := path.Join(appDataPath, "config.yaml")
 
-	data := config.Config{}
-	data.Scan()
+	data := config.WlanConfig{}
+	data.Load(configPath)
+
+	message := config.ConfigMessage{}
+	message.Scan()
+
+	data.Merge(message.Config.WLAN)
 	data.Save(configPath)
-	data.Print()
+
+	message.Config.WLAN = data
+	message.Print()
 }

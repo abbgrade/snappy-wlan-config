@@ -12,36 +12,72 @@ type WlanConfig struct {
 	PSK  string
 }
 
-type Config struct {
+type ConfigMessage struct {
 	Config struct {
 		WLAN WlanConfig
 	}
 }
 
-func (config *Config) Scan() {
+func (config *WlanConfig) Save(path string) {
 
-	data, err := ioutil.ReadAll(os.Stdin)
+	// Dump the YAML
+	data, err := yaml.Marshal(&config)
 	if err != nil {
-		Warning.Fatalf("read: %v", err)
+		Warning.Fatalf("dump: %v", err)
 	}
 
+	// Write the file
+	ioutil.WriteFile(path, data, 0644)
+}
+
+func (config *WlanConfig) Load(path string) {
+
+	// Read the file
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		Warning.Fatalf("load: %v", err)
+	}
+
+	// Parse the YAML
+	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
+		Warning.Fatalf("parse: %v", err)
+	}
+
+}
+
+func (config *WlanConfig) Merge(branch WlanConfig) {
+
+	if branch.SSID != "" {
+		config.SSID = branch.SSID
+	}
+
+	if branch.PSK != "" {
+		config.PSK = branch.PSK
+	}
+}
+
+func (config *ConfigMessage) Scan() {
+
+	// Read from StandardIn
+	data, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		Warning.Fatalf("scan: %v", err)
+	}
+
+	// Parse the YAML
 	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
 		Warning.Fatalf("parse: %v", err)
 	}
 }
 
-func (config *Config) Print() {
-	dump, err := yaml.Marshal(&config)
-	if err != nil {
-		Warning.Fatalf("dump: %v", err)
-	}
-	fmt.Printf("%s", string(dump))
-}
+func (config *ConfigMessage) Print() {
 
-func (config *Config) Save(path string) {
-	dump, err := yaml.Marshal(&config.Config.WLAN)
+	// Dump the YAML
+	data, err := yaml.Marshal(&config)
 	if err != nil {
 		Warning.Fatalf("dump: %v", err)
 	}
-	ioutil.WriteFile(path, dump, 0644)
+
+	// Print the dump
+	fmt.Printf("%s", string(data))
 }

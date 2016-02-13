@@ -48,4 +48,6 @@ func main() {
 	messageOut.Config.WLAN = data
 	messageOut.Print()
 	config.Trace.Print("printed: %v", messageOut)
+
+	data.Export(appDataPath)
 }

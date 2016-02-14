@@ -15,6 +15,7 @@ func main() {
 	if appDataPath == "" {
 		appDataPath = "."
 	}
+	config.Trace.Printf("app data path = %v", appDataPath)
 	configPath := path.Join(appDataPath, "config.yaml")
 
 	// load

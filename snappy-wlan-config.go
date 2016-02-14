@@ -10,22 +10,27 @@ import (
 func main() {
 	config.InitLogging(ioutil.Discard, os.Stdout, os.Stderr, os.Stderr)
 
-	// get config path
-	appDataPath := os.Getenv("SNAP_APP_DATA_PATH")
-	if appDataPath == "" {
-		appDataPath = "."
+	// get environment variables
+	appDataDirPath := os.Getenv("SNAP_APP_DATA_PATH")
+	if appDataDirPath == "" {
+		appDataDirPath = "."
 	}
-	config.Trace.Printf("app data path = %v", appDataPath)
-	configPath := path.Join(appDataPath, "config.yaml")
+
+	// init controller
+	controller := config.Controller{}
+
+	controller.ConfigPath = path.Join(appDataDirPath, "config.yaml")
+	controller.InterfacesDirPath = appDataDirPath
+
+	config.Trace.Printf("parameters = %v", controller)
 
 	// load
-	data := config.Config{}
-	data.Load(configPath)
-	config.Trace.Printf("loaded: %v from %v", data, configPath)
+	controller.Load()
+	config.Trace.Printf("loaded: %v from %v", controller, controller.ConfigPath)
 
 	// upgrade load
-	data.Upgrade()
-	config.Trace.Print("upgraded: %v", data)
+	controller.Model.Upgrade()
+	config.Trace.Print("upgraded: %v", controller)
 
 	// scan
 	request := config.Transaction{}
@@ -33,22 +38,23 @@ func main() {
 	config.Trace.Print("scanned: %v", request)
 
 	// upgrade scan
-	request.Config.WLAN.Upgrade()
+	request.Config.Model.Upgrade()
 	config.Trace.Print("upgraded: %v", request)
 
 	// merge load and scan
-	data.Merge(request.Config.WLAN)
-	config.Trace.Print("merged: %v", data)
+	controller.Merge(request)
+	config.Trace.Print("merged: %v", controller)
 
 	// save merge
-	data.Save(configPath)
-	config.Trace.Print("saved: %v", data)
+	controller.Save()
+	config.Trace.Print("saved: %v", controller)
 
 	// print save
 	response := config.Transaction{}
-	response.Config.WLAN = data
+	response.Config.Model = controller.Model
 	response.Print()
 	config.Trace.Print("printed: %v", response)
 
-	data.Export(appDataPath)
+	// export wpa supplicant config
+	controller.Export()
 }

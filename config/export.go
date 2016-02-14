@@ -9,6 +9,15 @@ type NetworkExport struct {
 	Lines []string
 }
 
+func NewNetworkExport(config *NetworkConfig) NetworkExport {
+
+	export := NetworkExport{}
+
+	export.AddLines(config)
+
+	return export
+}
+
 func (export *NetworkExport) Append(key, value string, optional bool, defaults ...string) {
 
 	// apply defaults
@@ -39,7 +48,7 @@ func (export *NetworkExport) Save(file *os.File) {
 	fmt.Fprintf(file, "}\n")
 }
 
-func (export *NetworkExport) Add(config *NetworkConfig) {
+func (export *NetworkExport) AddLines(config *NetworkConfig) {
 	export.Append("id_str", config.ID, true)
 	export.Append("ssid", config.SSID, false)
 	export.Append("scan_ssid", config.ScanSSID, true)

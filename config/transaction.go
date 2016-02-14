@@ -9,7 +9,7 @@ import (
 
 type Transaction struct {
 	Config struct {
-		WLAN Config
+		Model Config `yaml:"wlan"`
 	}
 }
 
@@ -21,10 +21,14 @@ func (config *Transaction) Scan() {
 		Warning.Fatalf("scan: %v", err)
 	}
 
+	Trace.Printf("scanned: \n%v", string(data))
+
 	// parse the YAML
 	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
 		Warning.Fatalf("parse: %v", err)
 	}
+
+	Trace.Printf("parsed: %v", *config)
 }
 
 func (config *Transaction) Print() {

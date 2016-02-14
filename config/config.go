@@ -9,17 +9,17 @@ import (
 )
 
 type NetworkConfig struct {
-	Interface     string
-	ID            string
-	Protocol      string
-	SSID          string
-	ScanSSID      string
-	PSK           string
-	KeyManagement string
-	Pairwise      string
-	Group         string
-	AuthAlgorithm string
-	Priority      string
+	Interface     string // default wlan0
+	ID            string // descriptional name
+	Protocol      string // eg. WPA, WPA2, WEP
+	SSID          string // network id
+	ScanSSID      string // default 0, hidden network
+	PSK           string // network password
+	KeyManagement string // eg. WPA-PSK
+	Pairwise      string // eg. CCMP or TKIP
+	Group         string // eg. TKIP or CCMP
+	AuthAlgorithm string // SHARED for WEP-shared
+	Priority      string // for WEP-shared
 }
 
 type Config struct {
@@ -32,65 +32,75 @@ type ConfigMessage struct {
 	}
 }
 
-func (config *NetworkConfig) Export(file *os.File) {
+type WPASupplicantExport struct {
+	Lines []string
+}
 
+func (export *WPASupplicantExport) Append(key, value string, optional bool, defaults ...string) {
+
+	if value == "" && len(defaults) > 0 {
+		value = defaults[0]
+	}
+
+	if value != "" {
+		export.Lines = append(export.Lines, fmt.Sprintf("\t%v=\"%v\"", key, value))
+	} else if optional == false {
+		Warning.Fatalf("%v is required but not set", key)
+	}
+}
+
+func (export *WPASupplicantExport) Save(file *os.File) {
 	fmt.Fprintf(file, "network={\n")
-	if config.ID != "" {
-		fmt.Fprintf(file, "\tid_str=\"%v\"\n", config.ID)
-	}
 
-	switch {
-	case config.Protocol == "WPA2" || config.Protocol == "RSN":
-		fmt.Fprintf(file, "\tproto=\"%v\"\n", "RSN")
-	case config.Protocol == "WPA":
-		fmt.Fprintf(file, "\tproto=\"%v\"\n", "WPA")
-	case config.Protocol == "WEP":
-	case config.Protocol == "":
-	default:
-		Warning.Fatalln("Protocol must be in WPA2,RSN,WPA,WEP")
-	}
-
-	if config.SSID == "" {
-		Warning.Fatalln("SSID is required")
-	}
-	fmt.Fprintf(file, "\tssid=\"%v\"\n", config.SSID)
-
-	if config.ScanSSID != "" {
-		fmt.Fprintf(file, "\tscan_ssid=\"%v\"\n", config.ScanSSID)
-	}
-
-	if config.PSK == "" {
-		Warning.Fatalln("PSK is required")
-	}
-
-	if config.Protocol == "WEP" {
-		fmt.Fprintf(file, "\twep_tx_keyidx=\"%v\"\n", 0)
-		fmt.Fprintf(file, "\twep_key0=\"%v\"\n", config.PSK)
-	} else {
-		fmt.Fprintf(file, "\tpsk=\"%v\"\n", config.PSK)
-	}
-
-	if config.KeyManagement != "" {
-		fmt.Fprintf(file, "\tkey_mgmt=\"%v\"\n", config.KeyManagement)
-	}
-
-	if config.Pairwise != "" {
-		fmt.Fprintf(file, "\tpairwise=\"%v\"\n", config.Pairwise)
-	}
-
-	if config.Group != "" {
-		fmt.Fprintf(file, "\tgroup=\"%v\"\n", config.Group)
-	}
-
-	if config.AuthAlgorithm != "" {
-		fmt.Fprintf(file, "\tauth_alg=\"%v\"\n", config.AuthAlgorithm)
-	}
-
-	if config.Priority != "" {
-		fmt.Fprintf(file, "\tpriority=\"%v\"\n", config.Priority)
+	for _, line := range export.Lines {
+		fmt.Fprintf(file, "%v\n", line)
 	}
 
 	fmt.Fprintf(file, "}\n")
+}
+
+func (config *NetworkConfig) Export(file *os.File) {
+
+	export := WPASupplicantExport{}
+
+	export.Append("id_str", config.ID, true)
+	export.Append("ssid", config.SSID, false)
+	export.Append("scan_ssid", config.ScanSSID, true)
+
+	switch config.Protocol {
+	case "":
+		fallthrough
+	case "WPA":
+		fallthrough
+	case "WPA2":
+		fallthrough
+	case "RSN":
+
+		export.Append("proto", config.Protocol, true)
+		export.Append("psk", config.PSK, false)
+
+		export.Append("key_mgmt", config.KeyManagement, true)
+		export.Append("pairwise", config.Pairwise, true)
+		export.Append("group", config.Group, true)
+
+	case "WEP":
+
+		export.Append("wep_tx_keyidx", "0", false)
+		export.Append("wep_key0", config.PSK, false)
+
+		export.Append("key_mgmt", config.KeyManagement, true, "NONE")
+
+		export.Append("auth_alg", config.AuthAlgorithm, true)
+		export.Append("priority", config.Priority, true)
+
+	default:
+
+		Warning.Fatalln("Protocol must be in WPA2,RSN,WPA,WEP")
+
+	}
+
+	export.Save(file)
+
 }
 
 func (config *Config) Save(path string) {
@@ -124,18 +134,6 @@ func (config *Config) Load(path string) {
 	if err := yaml.Unmarshal([]byte(data), &config); err != nil {
 		Warning.Fatalf("parse: %v", err)
 	}
-
-}
-
-func (config *Config) Extend(element NetworkConfig) {
-	n := len(config.Networks)
-	if n == cap(config.Networks) {
-		newSlice := make([]NetworkConfig, len(config.Networks), 2*len(config.Networks)+1)
-		copy(newSlice, config.Networks)
-		config.Networks = newSlice
-	}
-	config.Networks = config.Networks[0 : n+1]
-	config.Networks[n] = element
 
 }
 

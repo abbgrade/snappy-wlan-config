@@ -27,16 +27,16 @@ func main() {
 	config.Trace.Print("upgraded: %v", data)
 
 	// scan
-	messageIn := config.ConfigMessage{}
-	messageIn.Scan()
-	config.Trace.Print("scanned: %v", messageIn)
+	request := config.Transaction{}
+	request.Scan()
+	config.Trace.Print("scanned: %v", request)
 
 	// upgrade scan
-	messageIn.Config.WLAN.Upgrade()
-	config.Trace.Print("upgraded: %v", messageIn)
+	request.Config.WLAN.Upgrade()
+	config.Trace.Print("upgraded: %v", request)
 
 	// merge load and scan
-	data.Merge(messageIn.Config.WLAN)
+	data.Merge(request.Config.WLAN)
 	config.Trace.Print("merged: %v", data)
 
 	// save merge
@@ -44,10 +44,10 @@ func main() {
 	config.Trace.Print("saved: %v", data)
 
 	// print save
-	messageOut := config.ConfigMessage{}
-	messageOut.Config.WLAN = data
-	messageOut.Print()
-	config.Trace.Print("printed: %v", messageOut)
+	response := config.Transaction{}
+	response.Config.WLAN = data
+	response.Print()
+	config.Trace.Print("printed: %v", response)
 
 	data.Export(appDataPath)
 }

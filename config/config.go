@@ -6,20 +6,30 @@ import (
 )
 
 const defaultInterface = "wlan0"
+const defaultAddressType = "dhcp"
 const EVENT_DELETE_INTERFACE = "delete interface"
 
+type IPConfig struct {
+	AddressType string `yaml:"address_type"` // eg. dhcp, static
+	Address     string
+	Netmask     string
+	Network     string
+	Gateway     string
+}
+
 type NetworkConfig struct {
-	Interface     string // default wlan0
-	ID            string // descriptional name
-	Protocol      string // eg. WPA, WPA2, WEP
-	SSID          string // network id
-	ScanSSID      string // default 0, hidden network
-	PSK           string // network password
-	KeyManagement string // eg. WPA-PSK
-	Pairwise      string // eg. CCMP or TKIP
-	Group         string // eg. TKIP or CCMP
-	AuthAlgorithm string // SHARED for WEP-shared
-	Priority      string // for WEP-shared
+	Interface     string   // default wlan0
+	ID            string   // descriptional name
+	Protocol      string   // eg. WPA, WPA2, WEP
+	SSID          string   // network id
+	ScanSSID      string   `yaml:"scan_ssid"` // default 0, hidden network
+	PSK           string   // network password
+	KeyManagement string   `yaml:"key_management"` // eg. WPA-PSK
+	Pairwise      string   // eg. CCMP or TKIP
+	Group         string   // eg. TKIP or CCMP
+	AuthAlgorithm string   `yaml:"auth_algorithm"` // SHARED for WEP-shared
+	Priority      string   // for WEP-shared
+	IPConfig      IPConfig `yaml:"ip_config"`
 }
 
 type Config struct {

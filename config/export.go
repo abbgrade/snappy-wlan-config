@@ -2,15 +2,15 @@ package config
 
 import (
 	"fmt"
-	"os"
+	"strings"
 )
 
 type NetworkExport struct {
-	Lines []string
+	Lines       []string
+	InterfaceId string
 }
 
 func NewNetworkExport(config *NetworkConfig) NetworkExport {
-
 	export := NetworkExport{}
 
 	export.AddLines(config)
@@ -18,7 +18,48 @@ func NewNetworkExport(config *NetworkConfig) NetworkExport {
 	return export
 }
 
-func (export *NetworkExport) Append(key, value string, optional bool, defaults ...string) {
+func (export *NetworkExport) Append(key, value string) {
+
+	// export key value pair
+	export.Lines = append(export.Lines, fmt.Sprintf("\t%v=\"%v\"", key, value))
+
+}
+
+func (export *NetworkExport) AddLines(config *NetworkConfig) {
+
+	export.InterfaceId = StringCoalesce(config.ID, config.Interface, defaultInterface)
+	addressType := StringCoalesce(config.IPConfig.AddressType, defaultAddressType)
+
+	export.Lines = append(export.Lines, fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
+
+	if config.IPConfig.AddressType == "static" {
+		export.Append("address", config.IPConfig.Address)
+		export.Append("netmask", config.IPConfig.Netmask)
+		export.Append("network", config.IPConfig.Network)
+		export.Append("gateway", config.IPConfig.Gateway)
+	}
+}
+
+func (export *NetworkExport) Dump() string {
+
+	return strings.Join(export.Lines, "\n")
+
+}
+
+type WifiExport struct {
+	Lines []string
+}
+
+func NewWifiExport(config *NetworkConfig) WifiExport {
+
+	export := WifiExport{}
+
+	export.AddLines(config)
+
+	return export
+}
+
+func (export *WifiExport) Append(key, value string, optional bool, defaults ...string) {
 
 	// apply defaults
 	if value == "" && len(defaults) > 0 {
@@ -37,18 +78,7 @@ func (export *NetworkExport) Append(key, value string, optional bool, defaults .
 	}
 }
 
-func (export *NetworkExport) Save(file *os.File) {
-
-	fmt.Fprintf(file, "network={\n")
-
-	for _, line := range export.Lines {
-		fmt.Fprintf(file, "%v\n", line)
-	}
-
-	fmt.Fprintf(file, "}\n")
-}
-
-func (export *NetworkExport) AddLines(config *NetworkConfig) {
+func (export *WifiExport) AddLines(config *NetworkConfig) {
 	export.Append("id_str", config.ID, true)
 	export.Append("ssid", config.SSID, false)
 	export.Append("scan_ssid", config.ScanSSID, true)
@@ -84,5 +114,15 @@ func (export *NetworkExport) AddLines(config *NetworkConfig) {
 		Warning.Fatalln("Protocol must be in WPA2,RSN,WPA,WEP")
 
 	}
+
+}
+
+func (export *WifiExport) Dump() string {
+
+	// wrap content
+	export.Lines = append([]string{"network={"}, export.Lines...)
+	export.Lines = append(export.Lines, "}")
+
+	return strings.Join(export.Lines, "\n")
 
 }

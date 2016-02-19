@@ -105,9 +105,11 @@ func (config *Controller) Export() {
 	for interfaceName, networks := range interfaces {
 
 		// create a config file for each wifi interface
-		wifiConfigFile, err := os.Create(config.GetWifiConfigPath(interfaceName))
+		wifiConfigPath := config.GetWifiConfigPath(interfaceName)
+		Trace.Printf("export: %v", wifiConfigPath)
+		wifiConfigFile, err := os.Create(wifiConfigPath)
 		if err != nil {
-			Warning.Fatalf("export: %v", err)
+			Warning.Fatalf("export %v : %v", wifiConfigPath, err)
 		}
 		defer wifiConfigFile.Close()
 
@@ -127,12 +129,17 @@ func (config *Controller) Export() {
 		}
 
 		// create a config file for each interface
+		networkConfigPath := config.GetNetworkConfigPath(interfaceName)
+		Trace.Printf("create %v", networkConfigPath)
 
-		Info.Printf("create %v", config.GetNetworkConfigPath(interfaceName))
+		inetConfigFile, err := os.Create(networkConfigPath)
+		if err != nil {
+			Warning.Fatalf("create %v : %v", networkConfigPath, err)
+		}
+		defer inetConfigFile.Close()
 
-		inetConfigFile, err := os.Create(config.GetNetworkConfigPath(interfaceName))
+		// export networks
 		networkExports := mapset.NewSet()
-
 		for _, network := range networks {
 
 			export := NewNetworkExport(&network)

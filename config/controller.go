@@ -175,7 +175,9 @@ func (config *Controller) Export() {
 func (config *Controller) DeleteInterface(interfaceName string) {
 
 	interfacePath := config.GetWifiConfigPath(interfaceName)
-	os.Remove(interfacePath)
+	if err := os.Remove(interfacePath); err != nil {
+		Warning.Fatalf("delete %v : %v", interfacePath, err)
+	}
 	Info.Printf("deleted: %v\n", interfacePath)
 
 }

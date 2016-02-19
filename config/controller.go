@@ -97,7 +97,7 @@ func (config *Controller) GetNetworkConfigPath(interfaceName string) string {
 func (config *Controller) Export() {
 
 	// sort networks by the interface
-	interfaces := make(map[string][]NetworkConfig)
+	interfaces := make(map[string][]WifiConfig)
 
 	for _, network := range config.Model.Networks {
 

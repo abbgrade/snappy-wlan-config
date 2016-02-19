@@ -9,7 +9,7 @@ type WifiExport struct {
 	Lines []string
 }
 
-func NewWifiExport(config *NetworkConfig) WifiExport {
+func NewWifiExport(config *WifiConfig) WifiExport {
 
 	export := WifiExport{}
 
@@ -37,7 +37,7 @@ func (export *WifiExport) Append(key, value string, optional bool, defaults ...s
 	}
 }
 
-func (export *WifiExport) AddLines(config *NetworkConfig) {
+func (export *WifiExport) AddLines(config *WifiConfig) {
 	export.Append("id_str", config.ID, true)
 	export.Append("ssid", config.SSID, false)
 	export.Append("scan_ssid", config.ScanSSID, true)

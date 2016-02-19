@@ -10,7 +10,7 @@ type NetworkExport struct {
 	InterfaceId string
 }
 
-func NewNetworkExport(config *NetworkConfig) NetworkExport {
+func NewNetworkExport(config *WifiConfig) NetworkExport {
 	export := NetworkExport{}
 
 	export.AddLines(config)
@@ -25,7 +25,7 @@ func (export *NetworkExport) Append(key, value string) {
 
 }
 
-func (export *NetworkExport) AddLines(config *NetworkConfig) {
+func (export *NetworkExport) AddLines(config *WifiConfig) {
 
 	export.InterfaceId = StringCoalesce(config.ID, config.Interface, defaultInterface)
 	addressType := StringCoalesce(config.IPConfig.AddressType, defaultAddressType)

@@ -17,7 +17,7 @@ type IPConfig struct {
 	Gateway     string
 }
 
-type NetworkConfig struct {
+type WifiConfig struct {
 	Interface     string   // default wlan0
 	ID            string   // descriptional name
 	Protocol      string   // eg. WPA, WPA2, WEP
@@ -33,7 +33,7 @@ type NetworkConfig struct {
 }
 
 type Config struct {
-	Networks []NetworkConfig
+	Networks []WifiConfig
 }
 
 func (config *Config) Merge(branch Config) {

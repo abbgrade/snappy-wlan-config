@@ -5,13 +5,13 @@ import (
 	"github.com/deckarep/golang-set"
 )
 
-type NetworkExport struct {
+type InterfaceExport struct {
 	Export
 	InterfaceId string
 }
 
-func NewNetworkExport(config *WifiConfig) NetworkExport {
-	export := NetworkExport{}
+func NewInterfaceExport(config *WifiConfig) InterfaceExport {
+	export := InterfaceExport{}
 	export._keyValueFormat = "\t%v=\"%v\""
 
 	export.AddLines(config)
@@ -19,7 +19,7 @@ func NewNetworkExport(config *WifiConfig) NetworkExport {
 	return export
 }
 
-func (export *NetworkExport) AddLines(config *WifiConfig) {
+func (export *InterfaceExport) AddLines(config *WifiConfig) {
 
 	export.InterfaceId = config.GetInterfaceId()
 	addressType := config.IPConfig.GetAddressType()
@@ -42,14 +42,14 @@ func (config *Controller) GetNetworkConfigPath(interfaceName string) string {
 
 func (config *Controller) ExportInterface(interfaceName string, networks []WifiConfig) {
 	path := config.GetNetworkConfigPath(interfaceName)
-	export := NewExportFile(path)
+	export := OpenExportFile(path)
 	defer export.Close()
 
 	// export unique networks
 	networkExports := mapset.NewSet()
 	for _, network := range networks {
 
-		networkExport := NewNetworkExport(&network)
+		networkExport := NewInterfaceExport(&network)
 		networkExports.Add(networkExport.Dump())
 
 	}

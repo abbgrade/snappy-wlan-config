@@ -64,7 +64,7 @@ func (config *Controller) ExportWifiAccesspoint(networks []WifiConfig) {
 		}
 
 		path := config.GetAccesspointConfigPath()
-		export := NewExportFile(path)
+		export := OpenExportFile(path)
 		defer export.Close()
 
 		// add a file header

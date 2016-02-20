@@ -11,7 +11,7 @@ type ExportFile struct {
 	_file *os.File
 }
 
-func NewExportFile(path string) ExportFile {
+func OpenExportFile(path string) ExportFile {
 
 	export := ExportFile{}
 

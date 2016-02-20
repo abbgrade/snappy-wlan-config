@@ -5,13 +5,13 @@ import (
 	"path"
 )
 
-type WifiExport struct {
+type WifiClientExport struct {
 	Export
 }
 
-func NewWifiExport(config *WifiConfig) WifiExport {
+func NewWifiClientExport(config *WifiConfig) WifiClientExport {
 
-	export := WifiExport{}
+	export := WifiClientExport{}
 	export._keyValueFormat = "\t%v=\"%v\""
 	export._prefix = "network={"
 	export._suffix = "}"
@@ -21,7 +21,7 @@ func NewWifiExport(config *WifiConfig) WifiExport {
 	return export
 }
 
-func (export *WifiExport) AddLines(config *WifiConfig) {
+func (export *WifiClientExport) AddLines(config *WifiConfig) {
 	export.Append("id_str", config.ID, true)
 	export.Append("ssid", config.SSID, false)
 	export.Append("scan_ssid", config.ScanSSID, true)
@@ -69,7 +69,7 @@ func (config *Controller) GetWifiConfigPath(interfaceName string) string {
 
 func (config *Controller) ExportWifiClient(interfaceName string, networks []WifiConfig) {
 	path := config.GetWifiConfigPath(interfaceName)
-	export := NewExportFile(path)
+	export := OpenExportFile(path)
 	defer export.Close()
 
 	// add a file header
@@ -83,7 +83,7 @@ func (config *Controller) ExportWifiClient(interfaceName string, networks []Wifi
 		}
 
 		// add each network configuration
-		networkExport := NewWifiExport(&network)
+		networkExport := NewWifiClientExport(&network)
 		export.Extend(networkExport.Dump())
 		export.Flush()
 	}

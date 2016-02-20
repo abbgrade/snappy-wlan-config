@@ -136,7 +136,7 @@ func (export *ExportFile) AddHeader(toolName string) {
 	fmt.Fprint(export.file, "\n")
 
 	if err != nil {
-		Warning.Fatalln("cannot write to file")
+		Warning.Fatalf("write: %v", err)
 	}
 }
 
@@ -203,7 +203,6 @@ func (config *Controller) ExportInterface(interfaceName string, networks []WifiC
 	// add each  export
 	for network := range networkExports.Iter() {
 
-		fmt.Printf("%v\n", network.(string))
 		fmt.Fprintf(export.file, "%v\n", network.(string))
 		export.file.Sync()
 

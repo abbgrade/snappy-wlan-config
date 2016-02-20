@@ -24,11 +24,12 @@ func main() {
 	config.Info.Printf("dryRun = %v", *dryRun)
 	config.Info.Printf("inputPath = %v", *inputPath)
 
-	// get environment variables
-	appDataDirPath := os.Getenv("SNAP_APP_DATA_PATH")
-	if appDataDirPath == "" {
-		appDataDirPath = "."
+	if *dryRun == true {
+		config.EnableDryRun()
 	}
+
+	// get environment variables
+	appDataDirPath := config.StringCoalesce(os.Getenv("SNAP_APP_DATA_PATH"), ".")
 
 	// init controller
 	controller := config.Controller{}
@@ -85,8 +86,7 @@ func main() {
 	response.Print()
 	config.Trace.Print("printed: %v", response)
 
-	if *dryRun == false {
-		// export wpa supplicant config
-		controller.Export()
-	}
+	// export wpa supplicant config
+	controller.Export()
+
 }

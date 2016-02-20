@@ -14,40 +14,29 @@ const INPUT_FILE_DEFAULT = INPUT_FILE_STDIN
 
 func main() {
 
+	// handle arguments
 	dryRun := flag.Bool("d", false, "Dry Run: \tDon't change anything on the system.")
 	inputPath := flag.String("i", INPUT_FILE_DEFAULT, "Input File: \tRead Input from file instead of stdin")
-
 	flag.Parse()
 
+	// setup logging
 	config.InitLogging(ioutil.Discard, os.Stdout, os.Stderr, os.Stderr)
 
 	config.Trace.Printf("dryRun = %v", *dryRun)
 	config.Trace.Printf("inputPath = %v", *inputPath)
 
-	if *dryRun == true {
-		config.EnableDryRun()
-	}
-
 	// get environment variables
 	appDataDirPath := config.StringCoalesce(os.Getenv("SNAP_APP_DATA_PATH"), ".")
+	configPath := path.Join(appDataDirPath, "config.yaml")
 
 	// init controller
-	controller := config.Controller{}
-
-	controller.ConfigPath = path.Join(appDataDirPath, "config.yaml")
-	controller.InterfacesDirPath = appDataDirPath
-
-	config.Trace.Printf("parameters = %v", controller)
+	controller := config.InitController(appDataDirPath, configPath, *dryRun)
 
 	// load
 	controller.Load()
-	config.Trace.Printf("loaded: %v from %v", controller, controller.ConfigPath)
-
-	// upgrade load
 	controller.Model.Upgrade()
-	config.Trace.Print("upgraded: %v", controller)
 
-	// scan
+	// scan request
 	request := config.Transaction{}
 	inputFile, _ := os.Open(os.DevNull)
 	switch {
@@ -64,29 +53,22 @@ func main() {
 	}
 
 	request.Scan(inputFile)
-	config.Trace.Print("scanned: %v", request)
-
-	// upgrade scan
 	request.Config.Model.Upgrade()
-	config.Trace.Print("upgraded: %v", request)
 
 	// merge load and scan
 	controller.Merge(request)
-	config.Trace.Print("merged: %v", controller)
 
 	if *dryRun == false {
 		// save merge
 		controller.Save()
-		config.Trace.Print("saved: %v", controller)
 	}
 
-	// print save
+	// print response
 	response := config.Transaction{}
 	response.Config.Model = controller.Model
 	response.Print()
-	config.Trace.Print("printed: %v", response)
 
-	// export config files
+	// export effected config files
 	controller.Export()
 
 }

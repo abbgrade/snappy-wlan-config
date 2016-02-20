@@ -71,6 +71,8 @@ func (config *Config) Merge(branch Config) {
 
 		}
 	}
+
+	Trace.Print("merged: %v", config)
 }
 
 func (config *Config) GetInterfaces() mapset.Set {
@@ -83,4 +85,6 @@ func (config *Config) GetInterfaces() mapset.Set {
 
 func (config *Config) Upgrade() {
 	// hook for future version changes
+
+	Trace.Print("upgraded: %v", config)
 }

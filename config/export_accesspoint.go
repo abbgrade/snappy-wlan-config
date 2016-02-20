@@ -50,7 +50,7 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 
 // Conroller extension
 
-func (config *Controller) GetAccesspointConfigPath() string {
+func GetAccesspointConfigPath() string {
 	return "/etc/hostapd/hostapd.conf"
 }
 
@@ -63,7 +63,7 @@ func (config *Controller) ExportWifiAccesspoint(networks []WifiConfig) {
 			continue
 		}
 
-		path := config.GetAccesspointConfigPath()
+		path := GetAccesspointConfigPath()
 		export := OpenExportFile(path)
 		defer export.Close()
 

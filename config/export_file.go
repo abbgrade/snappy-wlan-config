@@ -15,7 +15,7 @@ func OpenExportFile(path string) ExportFile {
 	export := ExportFile{}
 
 	Trace.Printf("export: %v", path)
-	if dryRun == true {
+	if _dryRun == true {
 		export._file = os.Stdout
 	} else if file, err := os.Create(path); err != nil {
 		Warning.Fatalf("export %v : %v", path, err)
@@ -40,7 +40,7 @@ func (export *ExportFile) Flush() {
 
 func (export *ExportFile) Close() {
 
-	if dryRun == false {
+	if _dryRun == false {
 		export._file.Close()
 	}
 }

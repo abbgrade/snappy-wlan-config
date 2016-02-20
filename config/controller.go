@@ -9,17 +9,22 @@ import (
 )
 
 var (
-	dryRun = false
+	_dryRun            = false
+	_interfacesDirPath string
+	_configPath        string
 )
 
-func EnableDryRun() {
-	dryRun = true
+type Controller struct {
+	Model Config
 }
 
-type Controller struct {
-	Model             Config
-	InterfacesDirPath string `yaml:"-"`
-	ConfigPath        string `yaml:"-"`
+func InitController(interfacesDirPath, configPath string, dryRun bool) Controller {
+	_interfacesDirPath = interfacesDirPath
+	_configPath = configPath
+	_dryRun = dryRun
+
+	config := Controller{}
+	return config
 }
 
 func (config *Controller) Save() {
@@ -31,20 +36,22 @@ func (config *Controller) Save() {
 	}
 
 	// write the file
-	if err := ioutil.WriteFile(config.ConfigPath, data, 0644); err != nil {
-		Warning.Fatalf("write %v : %v", config.ConfigPath, err)
+	if err := ioutil.WriteFile(_configPath, data, 0644); err != nil {
+		Warning.Fatalf("write %v : %v", _configPath, err)
 	}
+
+	Trace.Print("saved: %v", config)
 }
 
 func (config *Controller) Load() {
 
 	// does the file exist?
-	if _, err := os.Stat(config.ConfigPath); os.IsNotExist(err) {
+	if _, err := os.Stat(_configPath); os.IsNotExist(err) {
 		return
 	}
 
 	// read the file
-	data, err := ioutil.ReadFile(config.ConfigPath)
+	data, err := ioutil.ReadFile(_configPath)
 	if err != nil {
 		Warning.Fatalf("load: %v", err)
 	}
@@ -56,6 +63,7 @@ func (config *Controller) Load() {
 		Warning.Fatalf("parse: %v", err)
 	}
 
+	Trace.Printf("loaded: %v from %v", config, _configPath)
 }
 
 func (config *Controller) Merge(request Transaction) {
@@ -111,13 +119,12 @@ func (config *Controller) Export() {
 
 		// create a config file for each interface
 		config.ExportInterface(interfaceName, networks)
-
 	}
 }
 
 func (config *Controller) RemoveInterface(interfaceName string) {
 
-	interfacePath := config.GetWifiConfigPath(interfaceName)
+	interfacePath := GetWifiConfigPath(interfaceName)
 	if _, err := os.Stat(interfacePath); os.IsNotExist(err) {
 
 	} else if err := os.Remove(interfacePath); err != nil {

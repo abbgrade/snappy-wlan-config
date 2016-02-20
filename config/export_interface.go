@@ -26,6 +26,11 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 
 	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
+	if config.ConnectionType == CONNECTION_TYPE_CLIENT {
+		wifiConfigPath := GetWifiConfigPath(config.Interface)
+		export.Append("wpa-conf", wifiConfigPath, false)
+	}
+
 	if config.IPConfig.AddressType == "static" {
 		export.Append("address", config.IPConfig.Address, false)
 		export.Append("netmask", config.IPConfig.Netmask, false)
@@ -36,12 +41,12 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 
 // Controller extension
 
-func (config *Controller) GetNetworkConfigPath(interfaceName string) string {
+func GetNetworkConfigPath(interfaceName string) string {
 	return fmt.Sprintf("/etc/network/interfaces.d/%v", interfaceName)
 }
 
 func (config *Controller) ExportInterface(interfaceName string, networks []WifiConfig) {
-	path := config.GetNetworkConfigPath(interfaceName)
+	path := GetNetworkConfigPath(interfaceName)
 	export := OpenExportFile(path)
 	defer export.Close()
 

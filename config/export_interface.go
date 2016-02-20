@@ -26,7 +26,7 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 
 	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
-	if config.ConnectionType == CONNECTION_TYPE_CLIENT {
+	if config.GetConnectionType() == CONNECTION_TYPE_CLIENT {
 		wifiConfigPath := GetWifiConfigPath(config.Interface)
 		export.Append("wpa-conf", wifiConfigPath, false)
 	}

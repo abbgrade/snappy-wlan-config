@@ -13,10 +13,10 @@ type Transaction struct {
 	}
 }
 
-func (config *Transaction) Scan() {
+func (config *Transaction) Scan(file *os.File) {
 
 	// read from standard-in
-	data, err := ioutil.ReadAll(os.Stdin)
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		Warning.Fatalf("scan: %v", err)
 	}

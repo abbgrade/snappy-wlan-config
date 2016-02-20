@@ -1,14 +1,28 @@
 package main
 
 import (
-	config "github.com/abbgrade/snappy-wlan-config/config"
+	"flag"
 	"io/ioutil"
 	"os"
 	"path"
+
+	config "github.com/abbgrade/snappy-wlan-config/config"
 )
 
+const INPUT_FILE_STDIN = "#stdin"
+const INPUT_FILE_DEFAULT = INPUT_FILE_STDIN
+
 func main() {
+
+	dryRun := flag.Bool("d", false, "Dry Run: \tDon't change anything on the system.")
+	inputPath := flag.String("i", INPUT_FILE_DEFAULT, "Input File: \tRead Input from file instead of stdin")
+
+	flag.Parse()
+
 	config.InitLogging(ioutil.Discard, os.Stdout, os.Stderr, os.Stderr)
+
+	config.Info.Printf("dryRun = %v", *dryRun)
+	config.Info.Printf("inputPath = %v", *inputPath)
 
 	// get environment variables
 	appDataDirPath := os.Getenv("SNAP_APP_DATA_PATH")
@@ -34,7 +48,21 @@ func main() {
 
 	// scan
 	request := config.Transaction{}
-	request.Scan()
+	inputFile, _ := os.Open(os.DevNull)
+	switch {
+	case *inputPath == INPUT_FILE_STDIN:
+		inputFile = os.Stdin
+	case *inputPath != "":
+
+		inputFile_, err := os.Open(*inputPath)
+		if err != nil {
+			config.Warning.Fatalf("read %v : %v", *inputPath, err)
+		} else {
+			inputFile = inputFile_
+		}
+	}
+
+	request.Scan(inputFile)
 	config.Trace.Print("scanned: %v", request)
 
 	// upgrade scan
@@ -45,9 +73,11 @@ func main() {
 	controller.Merge(request)
 	config.Trace.Print("merged: %v", controller)
 
-	// save merge
-	controller.Save()
-	config.Trace.Print("saved: %v", controller)
+	if *dryRun == false {
+		// save merge
+		controller.Save()
+		config.Trace.Print("saved: %v", controller)
+	}
 
 	// print save
 	response := config.Transaction{}
@@ -55,6 +85,8 @@ func main() {
 	response.Print()
 	config.Trace.Print("printed: %v", response)
 
-	// export wpa supplicant config
-	controller.Export()
+	if *dryRun == false {
+		// export wpa supplicant config
+		controller.Export()
+	}
 }

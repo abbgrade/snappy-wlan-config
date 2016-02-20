@@ -24,7 +24,7 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 	export.InterfaceId = config.GetInterfaceId()
 	addressType := config.IPConfig.GetAddressType()
 
-	export.Lines = append(export.Lines, fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
+	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
 	if config.IPConfig.AddressType == "static" {
 		export.Append("address", config.IPConfig.Address, false)

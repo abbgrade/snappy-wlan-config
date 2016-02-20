@@ -9,10 +9,10 @@ It generates config files for wpa-supplicant for WLAN configuration.
 
 - [x] Add command line flags for dry runs
 - [x] Check existing interface config
+- [x] Prevent writing empty config files
 
 ### Planned
 
 - [ ] Check missing interface config
-- [ ] Prevent writing empty config files
 - [ ] Respect network order in interface export
 - [ ] Improve unit test converage

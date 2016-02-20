@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strings"
 )
 
 type ExportFile struct {
@@ -34,8 +33,9 @@ func OpenExportFile(path string) ExportFile {
 
 func (export *ExportFile) Flush() {
 	export.Extend("", "")
-	export._file.WriteString(strings.Join(export.Lines, "\n"))
+	export._file.WriteString(export.Dump())
 	export._file.Sync()
+	export.Truncate()
 }
 
 func (export *ExportFile) Close() {

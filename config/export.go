@@ -9,7 +9,7 @@ type Export struct {
 	_keyValueFormat string
 	_prefix         string
 	_suffix         string
-	Lines           []string
+	_lines          []string
 }
 
 func (export *Export) Append(key, value string, optional bool, defaults ...string) {
@@ -22,7 +22,7 @@ func (export *Export) Append(key, value string, optional bool, defaults ...strin
 	if value != "" {
 
 		// export key value pair
-		export.Lines = append(export.Lines, fmt.Sprintf(export._keyValueFormat, key, value))
+		export._lines = append(export._lines, fmt.Sprintf(export._keyValueFormat, key, value))
 
 	} else if optional == false {
 
@@ -32,20 +32,24 @@ func (export *Export) Append(key, value string, optional bool, defaults ...strin
 }
 
 func (export *Export) Extend(lines ...string) {
-	export.Lines = append(export.Lines, lines...)
+	export._lines = append(export._lines, lines...)
+}
+
+func (export *Export) Truncate() {
+	export._lines = []string{}
 }
 
 func (export *Export) Dump() string {
 
 	// wrap with prefix and suffix
 	if export._prefix != "" {
-		export.Lines = append([]string{export._prefix}, export.Lines...)
+		export._lines = append([]string{export._prefix}, export._lines...)
 	}
 
 	if export._suffix != "" {
-		export.Lines = append(export.Lines, export._suffix)
+		export._lines = append(export._lines, export._suffix)
 	}
 
-	return strings.Join(export.Lines, "\n")
+	return strings.Join(export._lines, "\n")
 
 }

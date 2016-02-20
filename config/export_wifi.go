@@ -2,39 +2,23 @@ package config
 
 import (
 	"fmt"
-	"strings"
+	"path"
 )
 
 type WifiExport struct {
-	Lines []string
+	Export
 }
 
 func NewWifiExport(config *WifiConfig) WifiExport {
 
 	export := WifiExport{}
+	export._keyValueFormat = "\t%v=\"%v\""
+	export._prefix = "network={"
+	export._suffix = "}"
 
 	export.AddLines(config)
 
 	return export
-}
-
-func (export *WifiExport) Append(key, value string, optional bool, defaults ...string) {
-
-	// apply defaults
-	if value == "" && len(defaults) > 0 {
-		value = defaults[0]
-	}
-
-	if value != "" {
-
-		// export key value pair
-		export.Lines = append(export.Lines, fmt.Sprintf("\t%v=\"%v\"", key, value))
-
-	} else if optional == false {
-
-		// fail on missing non optional value
-		Warning.Fatalf("%v is required but not set", key)
-	}
 }
 
 func (export *WifiExport) AddLines(config *WifiConfig) {
@@ -76,12 +60,31 @@ func (export *WifiExport) AddLines(config *WifiConfig) {
 
 }
 
-func (export *WifiExport) Dump() string {
+// Controller extension
 
-	// wrap content
-	export.Lines = append([]string{"network={"}, export.Lines...)
-	export.Lines = append(export.Lines, "}")
+func (config *Controller) GetWifiConfigPath(interfaceName string) string {
+	fileName := fmt.Sprintf("interface_%v.conf", interfaceName)
+	return path.Join(config.InterfacesDirPath, fileName)
+}
 
-	return strings.Join(export.Lines, "\n")
+func (config *Controller) ExportWifiClient(interfaceName string, networks []WifiConfig) {
+	path := config.GetWifiConfigPath(interfaceName)
+	export := NewExportFile(path)
+	defer export.Close()
 
+	// add a file header
+	export.AddHeader("wpasupplicant")
+
+	for _, network := range networks {
+
+		if network.GetConnectionType() != CONNECTION_TYPE_CLIENT {
+			Trace.Printf("skip %v", network.GetConnectionType())
+			continue
+		}
+
+		// add each network configuration
+		networkExport := NewWifiExport(&network)
+		export.Extend(networkExport.Dump())
+		export.Flush()
+	}
 }

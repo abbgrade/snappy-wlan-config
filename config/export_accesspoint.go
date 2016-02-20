@@ -1,40 +1,19 @@
 package config
 
-import (
-	"fmt"
-	"strings"
-)
+import ()
 
 type AccesspointExport struct {
-	Lines []string
+	Export
 }
 
 func NewAccesspointExport(config *WifiConfig) AccesspointExport {
 
 	export := AccesspointExport{}
+	export._keyValueFormat = "\t%v=\"%v\""
 
 	export.AddLines(config)
 
 	return export
-}
-
-func (export *AccesspointExport) Append(key, value string, optional bool, defaults ...string) {
-
-	// apply defaults
-	if value == "" && len(defaults) > 0 {
-		value = defaults[0]
-	}
-
-	if value != "" {
-
-		// export key value pair
-		export.Lines = append(export.Lines, fmt.Sprintf("\t%v=\"%v\"", key, value))
-
-	} else if optional == false {
-
-		// fail on missing non optional value
-		Warning.Fatalf("%v is required but not set", key)
-	}
 }
 
 func (export *AccesspointExport) AddLines(config *WifiConfig) {
@@ -69,8 +48,31 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 	}
 }
 
-func (export *AccesspointExport) Dump() string {
+// Conroller extension
 
-	return strings.Join(export.Lines, "\n")
+func (config *Controller) GetAccesspointConfigPath() string {
+	return "/etc/hostapd/hostapd.conf"
+}
 
+func (config *Controller) ExportWifiAccesspoint(networks []WifiConfig) {
+
+	for _, network := range networks {
+
+		if network.GetConnectionType() == CONNECTION_TYPE_CLIENT {
+			Trace.Printf("skip %v", network.GetConnectionType())
+			continue
+		}
+
+		path := config.GetAccesspointConfigPath()
+		export := NewExportFile(path)
+		defer export.Close()
+
+		// add a file header
+		export.AddHeader("hostapd")
+
+		// add each network configuration
+		exportAccesspoint := NewAccesspointExport(&network)
+		export.Extend(exportAccesspoint.Dump())
+		export.Flush()
+	}
 }

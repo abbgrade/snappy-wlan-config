@@ -40,5 +40,5 @@ func (config *Transaction) Print() {
 	}
 
 	// print the dump
-	fmt.Printf("%s", string(data))
+	fmt.Printf("%s\n", string(data))
 }

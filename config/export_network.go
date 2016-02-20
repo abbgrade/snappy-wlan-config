@@ -2,27 +2,21 @@ package config
 
 import (
 	"fmt"
-	"strings"
+	"github.com/deckarep/golang-set"
 )
 
 type NetworkExport struct {
-	Lines       []string
+	Export
 	InterfaceId string
 }
 
 func NewNetworkExport(config *WifiConfig) NetworkExport {
 	export := NetworkExport{}
+	export._keyValueFormat = "\t%v=\"%v\""
 
 	export.AddLines(config)
 
 	return export
-}
-
-func (export *NetworkExport) Append(key, value string) {
-
-	// export key value pair
-	export.Lines = append(export.Lines, fmt.Sprintf("\t%v=\"%v\"", key, value))
-
 }
 
 func (export *NetworkExport) AddLines(config *WifiConfig) {
@@ -33,15 +27,41 @@ func (export *NetworkExport) AddLines(config *WifiConfig) {
 	export.Lines = append(export.Lines, fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
 	if config.IPConfig.AddressType == "static" {
-		export.Append("address", config.IPConfig.Address)
-		export.Append("netmask", config.IPConfig.Netmask)
-		export.Append("network", config.IPConfig.Network)
-		export.Append("gateway", config.IPConfig.Gateway)
+		export.Append("address", config.IPConfig.Address, false)
+		export.Append("netmask", config.IPConfig.Netmask, false)
+		export.Append("network", config.IPConfig.Network, false)
+		export.Append("gateway", config.IPConfig.Gateway, false)
 	}
 }
 
-func (export *NetworkExport) Dump() string {
+// Controller extension
 
-	return strings.Join(export.Lines, "\n")
+func (config *Controller) GetNetworkConfigPath(interfaceName string) string {
+	return fmt.Sprintf("/etc/network/interfaces.d/%v", interfaceName)
+}
 
+func (config *Controller) ExportInterface(interfaceName string, networks []WifiConfig) {
+	path := config.GetNetworkConfigPath(interfaceName)
+	export := NewExportFile(path)
+	defer export.Close()
+
+	// export unique networks
+	networkExports := mapset.NewSet()
+	for _, network := range networks {
+
+		networkExport := NewNetworkExport(&network)
+		networkExports.Add(networkExport.Dump())
+
+	}
+
+	// add a file header
+	export.AddHeader("interfaces")
+
+	// add each  export
+	for network := range networkExports.Iter() {
+
+		export.Extend(network.(string))
+		export.Flush()
+
+	}
 }

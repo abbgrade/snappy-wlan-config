@@ -22,7 +22,7 @@ type IPConfig struct {
 
 type WifiConfig struct {
 	Interface      string   // default wlan0
-	ConnectionType string   // eg client, accesspoint
+	ConnectionType string   `yaml:"connection_type"` // eg client, accesspoint
 	ID             string   // descriptional name
 	Protocol       string   // eg. WPA, WPA2, WEP
 	SSID           string   // network id

@@ -6,9 +6,9 @@ It generates config files for wpa-supplicant for WLAN configuration.
 ## Changelog
 
 - [x] Add command line flags for dry runs
+- [x] Check existing interface config
 
 ### Planning
 
 - [ ] Check missing interface config
-- [ ] Check existing interface config
 - [ ] Improve unit test converage

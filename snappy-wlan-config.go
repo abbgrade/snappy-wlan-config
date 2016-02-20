@@ -21,8 +21,8 @@ func main() {
 
 	config.InitLogging(ioutil.Discard, os.Stdout, os.Stderr, os.Stderr)
 
-	config.Info.Printf("dryRun = %v", *dryRun)
-	config.Info.Printf("inputPath = %v", *inputPath)
+	config.Trace.Printf("dryRun = %v", *dryRun)
+	config.Trace.Printf("inputPath = %v", *inputPath)
 
 	if *dryRun == true {
 		config.EnableDryRun()
@@ -86,7 +86,7 @@ func main() {
 	response.Print()
 	config.Trace.Print("printed: %v", response)
 
-	// export wpa supplicant config
+	// export config files
 	controller.Export()
 
 }

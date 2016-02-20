@@ -27,8 +27,8 @@ func (export *NetworkExport) Append(key, value string) {
 
 func (export *NetworkExport) AddLines(config *WifiConfig) {
 
-	export.InterfaceId = StringCoalesce(config.ID, config.Interface, defaultInterface)
-	addressType := StringCoalesce(config.IPConfig.AddressType, defaultAddressType)
+	export.InterfaceId = config.GetInterfaceId()
+	addressType := config.IPConfig.GetAddressType()
 
 	export.Lines = append(export.Lines, fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 

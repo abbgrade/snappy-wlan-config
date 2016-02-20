@@ -5,8 +5,11 @@ import (
 	"github.com/funkygao/golib/observer"
 )
 
-const defaultInterface = "wlan0"
-const defaultAddressType = "dhcp"
+const INTERFACE_DEFAULT = "wlan0"
+const ADDRESS_TYPE_DEFAULT = "dhcp"
+const CONNECTION_TYPE_CLIENT = "client"
+const CONNECTION_TYPE_ACCESSPOINT = "accesspoint"
+const CONNECTION_TYPE_DEFAULT = "client"
 const EVENT_DELETE_INTERFACE = "delete interface"
 
 type IPConfig struct {
@@ -18,18 +21,31 @@ type IPConfig struct {
 }
 
 type WifiConfig struct {
-	Interface     string   // default wlan0
-	ID            string   // descriptional name
-	Protocol      string   // eg. WPA, WPA2, WEP
-	SSID          string   // network id
-	ScanSSID      string   `yaml:"scan_ssid"` // default 0, hidden network
-	PSK           string   // network password
-	KeyManagement string   `yaml:"key_management"` // eg. WPA-PSK
-	Pairwise      string   // eg. CCMP or TKIP
-	Group         string   // eg. TKIP or CCMP
-	AuthAlgorithm string   `yaml:"auth_algorithm"` // SHARED for WEP-shared
-	Priority      string   // for WEP-shared
-	IPConfig      IPConfig `yaml:"ip_config"`
+	Interface      string   // default wlan0
+	ConnectionType string   // eg client, accesspoint
+	ID             string   // descriptional name
+	Protocol       string   // eg. WPA, WPA2, WEP
+	SSID           string   // network id
+	ScanSSID       string   `yaml:"scan_ssid"` // default 0, hidden network
+	PSK            string   // network password
+	KeyManagement  string   `yaml:"key_management"` // eg. WPA-PSK
+	Pairwise       string   // eg. CCMP or TKIP
+	Group          string   // eg. TKIP or CCMP
+	AuthAlgorithm  string   `yaml:"auth_algorithm"` // SHARED for WEP-shared
+	Priority       string   // for WEP-shared
+	IPConfig       IPConfig `yaml:"ip_config"`
+}
+
+func (config *WifiConfig) GetConnectionType() string {
+	return StringCoalesce(config.ConnectionType, CONNECTION_TYPE_DEFAULT)
+}
+
+func (config *WifiConfig) GetInterfaceId() string {
+	return StringCoalesce(config.ID, config.Interface, INTERFACE_DEFAULT)
+}
+
+func (config *IPConfig) GetAddressType() string {
+	return StringCoalesce(config.AddressType, ADDRESS_TYPE_DEFAULT)
 }
 
 type Config struct {

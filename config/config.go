@@ -9,7 +9,7 @@ const INTERFACE_DEFAULT = "wlan0"
 const ADDRESS_TYPE_DEFAULT = "dhcp"
 const CONNECTION_TYPE_CLIENT = "client"
 const CONNECTION_TYPE_ACCESSPOINT = "accesspoint"
-const CONNECTION_TYPE_DEFAULT = "client"
+const CONNECTION_TYPE_DEFAULT = CONNECTION_TYPE_CLIENT
 const EVENT_DELETE_INTERFACE = "delete interface"
 
 type IPConfig struct {

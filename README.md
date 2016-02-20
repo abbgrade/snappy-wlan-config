@@ -5,10 +5,13 @@ It generates config files for wpa-supplicant for WLAN configuration.
 
 ## Changelog
 
+### In Progress
+
 - [x] Add command line flags for dry runs
 - [x] Check existing interface config
 
-### Planning
+### Planned
 
 - [ ] Check missing interface config
+- [ ] Prevent writing empty config files
 - [ ] Improve unit test converage

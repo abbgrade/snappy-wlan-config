@@ -24,6 +24,7 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 	export.InterfaceId = config.GetInterfaceId()
 	addressType := config.IPConfig.GetAddressType()
 
+	export.Extend(fmt.Sprintf("auto %v", export.InterfaceId))
 	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
 	if config.GetConnectionType() == CONNECTION_TYPE_CLIENT {

@@ -12,7 +12,7 @@ type InterfaceExport struct {
 
 func NewInterfaceExport(config *WifiConfig) InterfaceExport {
 	export := InterfaceExport{}
-	export._keyValueFormat = "\t%v=\"%v\""
+	export._keyValueFormat = "\t%v %v"
 
 	export.AddLines(config)
 
@@ -24,7 +24,7 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 	export.InterfaceId = config.GetInterfaceId()
 	addressType := config.IPConfig.GetAddressType()
 
-	export.Extend(fmt.Sprintf("auto %v", export.InterfaceId))
+	export.Extend(fmt.Sprintf("allow-hotplug %v", export.InterfaceId))
 	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
 	if config.GetConnectionType() == CONNECTION_TYPE_CLIENT {

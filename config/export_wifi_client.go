@@ -64,7 +64,7 @@ func (export *WifiClientExport) AddLines(config *WifiConfig) {
 
 func GetWifiConfigPath(interfaceName string) string {
 	fileName := fmt.Sprintf("interface_%v.conf", interfaceName)
-	return path.Join(_interfacesDirPath, fileName)
+	return path.Join(_wifiConfigDirPath, fileName)
 }
 
 func (config *Controller) ExportWifiClient(interfaceName string, networks []WifiConfig) {

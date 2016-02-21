@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	//"regexp"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -24,7 +24,7 @@ func setupTest(test_name string) {
 
 	Info.Println("create", tempPath)
 
-	wifiConfigDirPath := tempPath
+	wifiConfigDirPath := "/"
 	configPath := path.Join(tempPath, "config.yaml")
 	dryRunPath := tempPath
 
@@ -54,38 +54,82 @@ func TestExportInterface(t *testing.T) {
 	interfacesDirPath := path.Join(tempPath, "/etc/network/interfaces.d/")
 	files, _ := ioutil.ReadDir(interfacesDirPath)
 
-	assert.Equal(t, len(files), 1, "wrong number of generated interface files")
-	assert.Equal(t, files[0].Name(), interfaceName, "wrong interface file generated")
+	assert.Equal(t, 1, len(files), "wrong number of generated interface files")
+	assert.Equal(t, interfaceName, files[0].Name(), "wrong interface file generated")
 
 	interfaceFilePath := path.Join(interfacesDirPath, interfaceName)
 	{
-		data, _ := ioutil.ReadFile(interfaceFilePath)
+		data, err := ioutil.ReadFile(interfaceFilePath)
+		assert.Nil(t, err)
+		Info.Println("interface config\n", string(data))
 
 		expectedLine := fmt.Sprintf("iface %v inet dhcp\n", interfaceName)
-		assert.True(t, strings.Contains(string(data), expectedLine), string(data), expectedLine)
+		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
 		expectedLine = fmt.Sprintf("allow-hotplug %v\n", interfaceName)
-		assert.True(t, strings.Contains(string(data), expectedLine), string(data), expectedLine)
+		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
 		expectedLine = "wpa-conf "
-		assert.True(t, strings.Contains(string(data), expectedLine), string(data), expectedLine)
+		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
-		/*
-			re := regexp.MustCompile("wpa-conf (.+)?")
-			wpaFilePath := re.FindString(string(data))
-			assert.True(t, strings.Contains(string(data), expectedLine), wpaFilePath, expectedLine)
+		re := regexp.MustCompile("wpa-conf (.+)?")
+		wpaFilePath := re.FindString(string(data))
+		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, wpaFilePath)
 
-			wpaFilePath = strings.Replace(wpaFilePath, expectedLine, "", 1)
+		wpaFilePath = strings.Replace(wpaFilePath, expectedLine, "", 1)
+		wpaFilePath = strings.Replace(wpaFilePath, tempPath, "", 1)
 
-			fmt.Printf("%v\n", wpaFilePath)
+		assert.Equal(t, fmt.Sprintf("/interface_%v.conf", interfaceName), wpaFilePath, "wrong wpa-conf path")
+	}
 
-			if _, err := ioutil.ReadFile(wpaFilePath); err != nil {
-				t.Fatal("missing referenced wpa file")
-			}
-		*/
+}
+
+func TestExportWifiClient(t *testing.T) {
+	setupTest("export wifi client")
+	defer tearDownTest()
+
+	interfaceName := "wlan42"
+	ssid := "FancyWIFI"
+	psk := "secret"
+
+	wifi := WifiConfig{}
+	wifi.Interface = interfaceName
+	wifi.SSID = ssid
+	wifi.PSK = psk
+	networks := []WifiConfig{wifi}
+
+	controller.ExportWifiClient(interfaceName, networks)
+
+	wifiDirPath := tempPath
+
+	Info.Println(wifiDirPath)
+
+	files, _ := ioutil.ReadDir(wifiDirPath)
+
+	for _, file := range files {
+		Info.Println(file.Name())
+	}
+
+	assert.Equal(t, 1, len(files), "wrong number of generated interface files")
+	wifiConfigName := fmt.Sprintf("interface_%v.conf", interfaceName)
+	assert.Equal(t, wifiConfigName, files[0].Name(), "wrong wifi file generated")
+	wifiConfigPath := path.Join(wifiDirPath, wifiConfigName)
+	{
+		data, err := ioutil.ReadFile(wifiConfigPath)
+		assert.Nil(t, err)
+		Info.Println("wifi config\n", string(data))
+
+		re := regexp.MustCompile("(?s)network={(.+)")
+		content := re.FindString(string(data))
+
+		assert.NotEqual(t, "", content, "must contain \"network={.*}\"", string(data))
+
+		expectedLine := fmt.Sprintf("ssid=\"%v\"\n", ssid)
+		assert.True(t, strings.Contains(content, expectedLine), expectedLine, content)
+
+		expectedLine = fmt.Sprintf("psk=\"%v\"\n", psk)
+		assert.True(t, strings.Contains(content, expectedLine), expectedLine, content)
 
 	}
 
-	Info.Println(interfacesDirPath)
-	Info.Println(files)
 }

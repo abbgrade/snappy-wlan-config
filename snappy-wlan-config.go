@@ -11,18 +11,20 @@ import (
 
 const INPUT_FILE_STDIN = "#stdin"
 const INPUT_FILE_DEFAULT = INPUT_FILE_STDIN
+const DRY_RUN_PATH_NONE = ""
+const DRY_RUN_PATH_DEFAULT = DRY_RUN_PATH_NONE
 
 func main() {
 
 	// handle arguments
-	dryRun := flag.Bool("d", false, "Dry Run: \tDon't change anything on the system.")
+	dryRunPath := flag.String("d", DRY_RUN_PATH_DEFAULT, "Dry Run Path: \tDon't change anything on the system. Write relative to the specified temp dir.")
 	inputPath := flag.String("i", INPUT_FILE_DEFAULT, "Input File: \tRead Input from file instead of stdin")
 	flag.Parse()
 
 	// setup logging
 	config.InitLogging(ioutil.Discard, os.Stdout, os.Stderr, os.Stderr)
 
-	config.Trace.Printf("dryRun = %v", *dryRun)
+	config.Trace.Printf("dryRunPath = %v", *dryRunPath)
 	config.Trace.Printf("inputPath = %v", *inputPath)
 
 	// get environment variables
@@ -30,7 +32,7 @@ func main() {
 	configPath := path.Join(appDataDirPath, "config.yaml")
 
 	// init controller
-	controller := config.InitController(appDataDirPath, configPath, *dryRun)
+	controller := config.InitController(appDataDirPath, configPath, *dryRunPath)
 
 	// load
 	controller.Load()
@@ -58,7 +60,7 @@ func main() {
 	// merge load and scan
 	controller.Merge(request)
 
-	if *dryRun == false {
+	if *dryRunPath == DRY_RUN_PATH_NONE {
 		// save merge
 		controller.Save()
 	}

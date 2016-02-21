@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path"
 )
 
 type ExportFile struct {
@@ -10,22 +11,25 @@ type ExportFile struct {
 	_file *os.File
 }
 
-func OpenExportFile(path string) ExportFile {
+func OpenExportFile(filePath string) ExportFile {
 
 	export := ExportFile{}
 
-	Trace.Printf("export: %v", path)
-	if _dryRun == true {
-		export._file = os.Stdout
-	} else if file, err := os.Create(path); err != nil {
-		Warning.Fatalf("export %v : %v", path, err)
+	Trace.Printf("export: %v", filePath)
+	if _dryRunPath != "" {
+		filePath = path.Join(_dryRunPath, filePath)
+		os.MkdirAll(path.Dir(filePath), 0777)
+	}
+
+	if file, err := os.Create(filePath); err != nil {
+		Warning.Fatalf("export %v : %v", filePath, err)
 	} else {
 		export._file = file
 	}
 
 	// check write access
 	if _, err := fmt.Fprint(export._file, ""); err != nil {
-		Warning.Fatalf("%v : %v", path, err)
+		Warning.Fatalf("%v : %v", filePath, err)
 	}
 
 	return export
@@ -39,10 +43,7 @@ func (export *ExportFile) Flush() {
 }
 
 func (export *ExportFile) Close() {
-
-	if _dryRun == false {
-		export._file.Close()
-	}
+	export._file.Close()
 }
 
 func (export *ExportFile) AddHeader(toolName string) {

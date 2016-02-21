@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	_dryRun            = false
-	_interfacesDirPath string
+	_dryRunPath        string
+	_wifiConfigDirPath string
 	_configPath        string
 )
 
@@ -18,10 +18,10 @@ type Controller struct {
 	Model Config
 }
 
-func InitController(interfacesDirPath, configPath string, dryRun bool) Controller {
-	_interfacesDirPath = interfacesDirPath
+func InitController(wifiConfigDirPath, configPath, dryRunPath string) Controller {
+	_wifiConfigDirPath = wifiConfigDirPath
 	_configPath = configPath
-	_dryRun = dryRun
+	_dryRunPath = dryRunPath
 
 	config := Controller{}
 	return config

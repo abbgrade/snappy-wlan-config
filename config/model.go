@@ -6,18 +6,18 @@ import (
 )
 
 const INTERFACE_DEFAULT = "wlan0"
-const ADDRESS_TYPE_DEFAULT = "dhcp"
+const ADDRESS_TYPE_DYNAMIC = "dhcp"
+const ADDRESS_TYPE_STATIC = "static"
 const CONNECTION_TYPE_CLIENT = "client"
 const CONNECTION_TYPE_ACCESSPOINT = "accesspoint"
 const CONNECTION_TYPE_DEFAULT = CONNECTION_TYPE_CLIENT
 const EVENT_DELETE_INTERFACE = "delete interface"
 
 type IPConfig struct {
-	AddressType string `yaml:"address_type"` // eg. dhcp, static
-	Address     string
-	Netmask     string
-	Network     string
-	Gateway     string
+	Address string
+	Netmask string
+	Network string
+	Gateway string
 }
 
 type WifiConfig struct {
@@ -33,7 +33,7 @@ type WifiConfig struct {
 	Group          string   // eg. TKIP or CCMP
 	AuthAlgorithm  string   `yaml:"auth_algorithm"` // SHARED for WEP-shared
 	Priority       string   // for WEP-shared
-	IPConfig       IPConfig `yaml:"ip_config"`
+	IP             IPConfig `yaml:"ip"`
 }
 
 func (config *WifiConfig) GetConnectionType() string {
@@ -45,7 +45,11 @@ func (config *WifiConfig) GetInterfaceId() string {
 }
 
 func (config *IPConfig) GetAddressType() string {
-	return StringCoalesce(config.AddressType, ADDRESS_TYPE_DEFAULT)
+	if config.Address == "" {
+		return ADDRESS_TYPE_DYNAMIC
+	} else {
+		return ADDRESS_TYPE_STATIC
+	}
 }
 
 type Config struct {

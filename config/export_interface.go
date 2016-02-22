@@ -22,7 +22,7 @@ func NewInterfaceExport(config *WifiConfig) InterfaceExport {
 func (export *InterfaceExport) AddLines(config *WifiConfig) {
 
 	export.InterfaceId = config.GetInterfaceId()
-	addressType := config.IPConfig.GetAddressType()
+	addressType := config.IP.GetAddressType()
 
 	export.Extend(fmt.Sprintf("allow-hotplug %v", export.InterfaceId))
 	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
@@ -32,11 +32,11 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 		export.Append("wpa-conf", wifiConfigPath, false)
 	}
 
-	if config.IPConfig.AddressType == "static" {
-		export.Append("address", config.IPConfig.Address, false)
-		export.Append("netmask", config.IPConfig.Netmask, false)
-		export.Append("network", config.IPConfig.Network, false)
-		export.Append("gateway", config.IPConfig.Gateway, false)
+	if config.IP.Address != "" {
+		export.Append("address", config.IP.Address, false)
+		export.Append("netmask", config.IP.Netmask, false)
+		export.Append("network", config.IP.Network, false)
+		export.Append("gateway", config.IP.Gateway, false)
 	}
 }
 

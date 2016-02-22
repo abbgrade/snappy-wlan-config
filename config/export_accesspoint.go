@@ -9,7 +9,7 @@ type AccesspointExport struct {
 func NewAccesspointExport(config *WifiConfig) AccesspointExport {
 
 	export := AccesspointExport{}
-	export._keyValueFormat = "\t%v=\"%v\""
+	export._keyValueFormat = "\t%v=%v"
 
 	export.AddLines(config)
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	config "./config"
+	config "github.com/abbgrade/snappy-wlan-config/config"
 )
 
 const INPUT_FILE_STDIN = "#stdin"

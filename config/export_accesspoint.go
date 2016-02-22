@@ -24,10 +24,16 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 	export.Append("ignore_broadcast_ssid", config.ScanSSID, true)
 	export.Append("country_code", "", true)
 	export.Append("ieee80211d", "", true)
+
+	hardwareMode := StringCoalesce(config.HardwareMode, HARDWARE_MODE_DEFAULT)
+	if !HARDWARE_MODE_OPTIONS.Contains(hardwareMode) {
+		Warning.Fatalf("%v must be in %v", hardwareMode, HARDWARE_MODE_OPTIONS)
+	}
+
 	export.Append("hw_mode", "", true)
 	export.Append("ieee80211n", "", true)
 
-	switch config.Protocol {
+	switch config.WPA.Protocol {
 	case "WPA2":
 		fallthrough
 	case "RSN":
@@ -37,7 +43,7 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 		export.Append("rsn_preauth", "1", false)
 		export.Append("rsn_preauth_interfaces", config.Interface, false)
 		export.Append("wpa_key_mhmt", "WPA-PSK", false)
-		export.Append("rsn_pairwise", config.Pairwise, true)
+		export.Append("rsn_pairwise", config.WPA.Pairwise, true)
 		export.Append("wpa_group_rekey", "600", true)
 		export.Append("wpa_ptk_rekey", "600", true)
 		export.Append("wpa_gmk_rekey", "86400", true)

@@ -9,7 +9,7 @@ type AccesspointExport struct {
 func NewAccesspointExport(config *WifiConfig) AccesspointExport {
 
 	export := AccesspointExport{}
-	export._keyValueFormat = "\t%v=%v"
+	export._keyValueFormat = "%v=%v"
 
 	export.AddLines(config)
 
@@ -18,20 +18,21 @@ func NewAccesspointExport(config *WifiConfig) AccesspointExport {
 
 func (export *AccesspointExport) AddLines(config *WifiConfig) {
 	export.Append("interface", config.Interface, false, INTERFACE_DEFAULT)
-	export.Append("driver", "", true)
+	export.Append("driver", "nl80211", false)
 	export.Append("ssid", config.SSID, false)
 	export.Append("channel", "1", false)
 	export.Append("ignore_broadcast_ssid", config.ScanSSID, true)
+
 	export.Append("country_code", "", true)
 	export.Append("ieee80211d", "", true)
+	export.Append("ieee80211n", "", true)
 
 	hardwareMode := StringCoalesce(config.HardwareMode, HARDWARE_MODE_DEFAULT)
 	if !HARDWARE_MODE_OPTIONS.Contains(hardwareMode) {
 		Warning.Fatalf("%v must be in %v", hardwareMode, HARDWARE_MODE_OPTIONS)
 	}
 
-	export.Append("hw_mode", "", true)
-	export.Append("ieee80211n", "", true)
+	export.Append("hw_mode", hardwareMode, true)
 
 	switch config.WPA.Protocol {
 	case "WPA2":

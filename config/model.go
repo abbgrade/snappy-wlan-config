@@ -14,9 +14,11 @@ const CONNECTION_TYPE_CLIENT = "client"
 const CONNECTION_TYPE_ACCESSPOINT = "accesspoint"
 const CONNECTION_TYPE_DEFAULT = CONNECTION_TYPE_CLIENT
 
-var HARDWARE_MODE_OPTIONS = mapset.NewSetFromSlice([]interface{}{"a", "b", "g", "n"})
+var CONNECTION_TYPE_OPTIONS = mapset.NewSetFromSlice([]interface{}{CONNECTION_TYPE_CLIENT, CONNECTION_TYPE_ACCESSPOINT})
 
 const HARDWARE_MODE_DEFAULT = "g"
+
+var HARDWARE_MODE_OPTIONS = mapset.NewSetFromSlice([]interface{}{"a", "b", "g", "n"})
 
 const EVENT_DELETE_INTERFACE = "delete interface"
 

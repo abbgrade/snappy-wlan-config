@@ -92,11 +92,10 @@ func TestExportInterface_static(t *testing.T) {
 
 	wifi := WifiConfig{}
 	wifi.Interface = interfaceName
-	wifi.IPConfig.AddressType = "static"
-	wifi.IPConfig.Address = "192.168.42.2"
-	wifi.IPConfig.Netmask = "255.255.255.0"
-	wifi.IPConfig.Network = "192.168.42.0"
-	wifi.IPConfig.Gateway = "192.168.42.1"
+	wifi.IP.Address = "192.168.42.2"
+	wifi.IP.Netmask = "255.255.255.0"
+	wifi.IP.Network = "192.168.42.0"
+	wifi.IP.Gateway = "192.168.42.1"
 	networks := []WifiConfig{wifi}
 
 	controller.ExportInterface(interfaceName, networks)
@@ -119,7 +118,7 @@ func TestExportInterface_static(t *testing.T) {
 		expectedLine = fmt.Sprintf("allow-hotplug %v\n", interfaceName)
 		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
-		expectedLine = fmt.Sprintf("address %v\n", wifi.IPConfig.Address)
+		expectedLine = fmt.Sprintf("address %v\n", wifi.IP.Address)
 		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
 		expectedLine = "wpa-conf "

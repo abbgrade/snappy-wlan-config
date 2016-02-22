@@ -21,19 +21,19 @@ type IPConfig struct {
 }
 
 type WifiConfig struct {
-	Interface      string   // default wlan0
-	ConnectionType string   `yaml:"connection_type"` // eg client, accesspoint
-	ID             string   // descriptional name
-	Protocol       string   // eg. WPA, WPA2, WEP
-	SSID           string   // network id
-	ScanSSID       string   `yaml:"scan_ssid"` // default 0, hidden network
-	PSK            string   // network password
-	KeyManagement  string   `yaml:"key_management"` // eg. WPA-PSK
-	Pairwise       string   // eg. CCMP or TKIP
-	Group          string   // eg. TKIP or CCMP
-	AuthAlgorithm  string   `yaml:"auth_algorithm"` // SHARED for WEP-shared
-	Priority       string   // for WEP-shared
-	IP             IPConfig `yaml:"ip"`
+	Interface      string // default wlan0
+	ConnectionType string `yaml:"connection_type"` // eg client, accesspoint
+	ID             string // descriptional name
+	Protocol       string // eg. WPA, WPA2, WEP
+	SSID           string // network id
+	ScanSSID       string `yaml:"scan_ssid"` // default 0, hidden network
+	PSK            string // network password
+	KeyManagement  string `yaml:"key_management"` // eg. WPA-PSK
+	Pairwise       string // eg. CCMP or TKIP
+	Group          string // eg. TKIP or CCMP
+	AuthAlgorithm  string `yaml:"auth_algorithm"` // SHARED for WEP-shared
+	Priority       string // for WEP-shared
+	IP             IPConfig
 }
 
 func (config *WifiConfig) GetConnectionType() string {

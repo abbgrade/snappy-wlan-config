@@ -79,7 +79,7 @@ func TestExportInterface(t *testing.T) {
 		wpaFilePath = strings.Replace(wpaFilePath, expectedLine, "", 1)
 		wpaFilePath = strings.Replace(wpaFilePath, tempPath, "", 1)
 
-		assert.Equal(t, fmt.Sprintf("/interface_%v.conf", interfaceName), wpaFilePath, "wrong wpa-conf path")
+		assert.Equal(t, fmt.Sprintf("/wifi_client_%v.conf", interfaceName), wpaFilePath, "wrong wpa-conf path")
 	}
 
 }
@@ -92,6 +92,7 @@ func TestExportInterface_static(t *testing.T) {
 
 	wifi := WifiConfig{}
 	wifi.Interface = interfaceName
+	wifi.ConnectionType = CONNECTION_TYPE_ACCESSPOINT
 	wifi.IP.Address = "192.168.42.2"
 	wifi.IP.Netmask = "255.255.255.0"
 	wifi.IP.Network = "192.168.42.0"
@@ -121,17 +122,17 @@ func TestExportInterface_static(t *testing.T) {
 		expectedLine = fmt.Sprintf("address %v\n", wifi.IP.Address)
 		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
-		expectedLine = "wpa-conf "
+		expectedLine = "hostapd "
 		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, string(data))
 
-		re := regexp.MustCompile("wpa-conf (.+)?")
+		re := regexp.MustCompile("hostapd (.+)?")
 		wpaFilePath := re.FindString(string(data))
 		assert.True(t, strings.Contains(string(data), expectedLine), expectedLine, wpaFilePath)
 
 		wpaFilePath = strings.Replace(wpaFilePath, expectedLine, "", 1)
 		wpaFilePath = strings.Replace(wpaFilePath, tempPath, "", 1)
 
-		assert.Equal(t, fmt.Sprintf("/interface_%v.conf", interfaceName), wpaFilePath, "wrong wpa-conf path")
+		assert.Equal(t, fmt.Sprintf("/wifi_accesspoint_%v.conf", interfaceName), wpaFilePath, "wrong wpa-conf path")
 	}
 
 }
@@ -162,8 +163,8 @@ func TestExportWifiClient(t *testing.T) {
 		Info.Println(file.Name())
 	}
 
-	assert.Equal(t, 1, len(files), "wrong number of generated interface files")
-	wifiConfigName := fmt.Sprintf("interface_%v.conf", interfaceName)
+	assert.Equal(t, 1, len(files), "wrong number of generated wifi files")
+	wifiConfigName := fmt.Sprintf("wifi_client_%v.conf", interfaceName)
 	assert.Equal(t, wifiConfigName, files[0].Name(), "wrong wifi file generated")
 	wifiConfigPath := path.Join(wifiDirPath, wifiConfigName)
 	{
@@ -184,4 +185,42 @@ func TestExportWifiClient(t *testing.T) {
 
 	}
 
+}
+
+func TestExportWifiAccesspoint(t *testing.T) {
+	setupTest("export wifi accesspoint")
+	defer tearDownTest()
+
+	interfaceName := "wlan42"
+	ssid := "FancyWIFI"
+	psk := "secret"
+
+	wifi := WifiConfig{}
+	wifi.Interface = interfaceName
+	wifi.ConnectionType = CONNECTION_TYPE_ACCESSPOINT
+	wifi.SSID = ssid
+	wifi.PSK = psk
+	networks := []WifiConfig{wifi}
+
+	controller.ExportWifiAccesspoint(networks)
+
+	wifiDirPath := tempPath
+
+	Info.Println(wifiDirPath)
+
+	files, _ := ioutil.ReadDir(wifiDirPath)
+
+	for _, file := range files {
+		Info.Println(file.Name())
+	}
+
+	assert.Equal(t, 1, len(files), "wrong number of generated accesspoint files")
+	wifiConfigName := fmt.Sprintf("wifi_accesspoint_%v.conf", interfaceName)
+	assert.Equal(t, wifiConfigName, files[0].Name(), "wrong accesspoint file generated")
+	wifiConfigPath := path.Join(wifiDirPath, wifiConfigName)
+	{
+		data, err := ioutil.ReadFile(wifiConfigPath)
+		assert.Nil(t, err)
+		Info.Println("wifi config\n", string(data))
+	}
 }

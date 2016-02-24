@@ -27,9 +27,13 @@ func (export *InterfaceExport) AddLines(config *WifiConfig) {
 	export.Extend(fmt.Sprintf("allow-hotplug %v", export.InterfaceId))
 	export.Extend(fmt.Sprintf("iface %v inet %v", export.InterfaceId, addressType))
 
-	if config.GetConnectionType() == CONNECTION_TYPE_CLIENT {
+	switch config.GetConnectionType() {
+	case CONNECTION_TYPE_CLIENT:
 		wifiConfigPath := GetWifiConfigPath(config.Interface)
 		export.Append("wpa-conf", wifiConfigPath, false)
+	case CONNECTION_TYPE_ACCESSPOINT:
+		wifiConfigPath := GetAccesspointConfigPath(config.Interface)
+		export.Append("hostapd", wifiConfigPath, false)
 	}
 
 	if config.IP.Address != "" {

@@ -1,6 +1,9 @@
 package config
 
-import ()
+import (
+	"fmt"
+	"path"
+)
 
 type AccesspointExport struct {
 	Export
@@ -57,8 +60,9 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 
 // Conroller extension
 
-func GetAccesspointConfigPath() string {
-	return "/etc/hostapd/hostapd.conf"
+func GetAccesspointConfigPath(interfaceName string) string {
+	fileName := fmt.Sprintf("wifi_accesspoint_%v.conf", interfaceName)
+	return path.Join(_wifiConfigDirPath, fileName)
 }
 
 func (config *Controller) ExportWifiAccesspoint(networks []WifiConfig) {
@@ -70,7 +74,7 @@ func (config *Controller) ExportWifiAccesspoint(networks []WifiConfig) {
 			continue
 		}
 
-		path := GetAccesspointConfigPath()
+		path := GetAccesspointConfigPath(network.GetInterfaceId())
 		export := OpenExportFile(path)
 		defer export.Close()
 

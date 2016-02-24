@@ -63,7 +63,7 @@ func (export *WifiClientExport) AddLines(config *WifiConfig) {
 // Controller extension
 
 func GetWifiConfigPath(interfaceName string) string {
-	fileName := fmt.Sprintf("interface_%v.conf", interfaceName)
+	fileName := fmt.Sprintf("wifi_client_%v.conf", interfaceName)
 	return path.Join(_wifiConfigDirPath, fileName)
 }
 

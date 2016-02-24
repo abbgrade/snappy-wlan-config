@@ -6,11 +6,20 @@ import (
 )
 
 const INTERFACE_DEFAULT = "wlan0"
+
 const ADDRESS_TYPE_DYNAMIC = "dhcp"
 const ADDRESS_TYPE_STATIC = "static"
+
 const CONNECTION_TYPE_CLIENT = "client"
 const CONNECTION_TYPE_ACCESSPOINT = "accesspoint"
 const CONNECTION_TYPE_DEFAULT = CONNECTION_TYPE_CLIENT
+
+var CONNECTION_TYPE_OPTIONS = mapset.NewSetFromSlice([]interface{}{CONNECTION_TYPE_CLIENT, CONNECTION_TYPE_ACCESSPOINT})
+
+const HARDWARE_MODE_DEFAULT = "g"
+
+var HARDWARE_MODE_OPTIONS = mapset.NewSetFromSlice([]interface{}{"a", "b", "g", "n"})
+
 const EVENT_DELETE_INTERFACE = "delete interface"
 
 type IPConfig struct {
@@ -20,19 +29,29 @@ type IPConfig struct {
 	Gateway string
 }
 
+type WPAConfig struct {
+	Protocol      string // eg. WPA, WPA2, WEP
+	KeyManagement string `yaml:"key_management"` // eg. WPA-PSK
+	Pairwise      string // eg. CCMP or TKIP
+	Group         string // eg. TKIP or CCMP
+
+}
+
+type WEPConfig struct {
+	AuthAlgorithm string `yaml:"auth_algorithm"` // SHARED for WEP-shared
+	Priority      string // for WEP-shared
+}
+
 type WifiConfig struct {
 	Interface      string // default wlan0
-	ConnectionType string `yaml:"connection_type"` // eg client, accesspoint
 	ID             string // descriptional name
-	Protocol       string // eg. WPA, WPA2, WEP
+	ConnectionType string `yaml:"connection_type"` // eg client, accesspoint
 	SSID           string // network id
 	ScanSSID       string `yaml:"scan_ssid"` // default 0, hidden network
+	HardwareMode   string // eg. a, b, g, n
 	PSK            string // network password
-	KeyManagement  string `yaml:"key_management"` // eg. WPA-PSK
-	Pairwise       string // eg. CCMP or TKIP
-	Group          string // eg. TKIP or CCMP
-	AuthAlgorithm  string `yaml:"auth_algorithm"` // SHARED for WEP-shared
-	Priority       string // for WEP-shared
+	WPA            WPAConfig
+	WEP            WEPConfig
 	IP             IPConfig
 }
 

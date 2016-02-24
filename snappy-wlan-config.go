@@ -11,6 +11,7 @@ import (
 
 const INPUT_FILE_STDIN = "#stdin"
 const INPUT_FILE_DEFAULT = INPUT_FILE_STDIN
+
 const DRY_RUN_PATH_NONE = ""
 const DRY_RUN_PATH_DEFAULT = DRY_RUN_PATH_NONE
 

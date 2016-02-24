@@ -26,7 +26,7 @@ func (export *WifiClientExport) AddLines(config *WifiConfig) {
 	export.Append("ssid", config.SSID, false)
 	export.Append("scan_ssid", config.ScanSSID, true)
 
-	switch config.Protocol {
+	switch config.WPA.Protocol {
 	case "":
 		fallthrough
 	case "WPA":
@@ -35,22 +35,22 @@ func (export *WifiClientExport) AddLines(config *WifiConfig) {
 		fallthrough
 	case "RSN":
 
-		export.Append("proto", config.Protocol, true)
 		export.Append("psk", config.PSK, false)
 
-		export.Append("key_mgmt", config.KeyManagement, true)
-		export.Append("pairwise", config.Pairwise, true)
-		export.Append("group", config.Group, true)
+		export.Append("proto", config.WPA.Protocol, true)
+		export.Append("key_mgmt", config.WPA.KeyManagement, true)
+		export.Append("pairwise", config.WPA.Pairwise, true)
+		export.Append("group", config.WPA.Group, true)
 
 	case "WEP":
 
 		export.Append("wep_tx_keyidx", "0", false)
 		export.Append("wep_key0", config.PSK, false)
 
-		export.Append("key_mgmt", config.KeyManagement, true, "NONE")
+		export.Append("key_mgmt", config.WPA.KeyManagement, true, "NONE")
 
-		export.Append("auth_alg", config.AuthAlgorithm, true)
-		export.Append("priority", config.Priority, true)
+		export.Append("auth_alg", config.WEP.AuthAlgorithm, true)
+		export.Append("priority", config.WEP.Priority, true)
 
 	default:
 
@@ -63,7 +63,7 @@ func (export *WifiClientExport) AddLines(config *WifiConfig) {
 // Controller extension
 
 func GetWifiConfigPath(interfaceName string) string {
-	fileName := fmt.Sprintf("interface_%v.conf", interfaceName)
+	fileName := fmt.Sprintf("wifi_client_%v.conf", interfaceName)
 	return path.Join(_wifiConfigDirPath, fileName)
 }
 

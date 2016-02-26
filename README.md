@@ -3,6 +3,8 @@
 A configuration tool from https://github.com/abbgrade/snappy-wlan against the snappy config interface.
 It generates config files for wpa-supplicant for WLAN configuration.
 
+[![Build Status](https://travis-ci.org/abbgrade/snappy-wlan-config.svg?branch=master)](https://travis-ci.org/abbgrade/snappy-wlan-config)
+
 ## Changelog
 
 ### In Progress

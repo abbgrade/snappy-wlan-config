@@ -21,7 +21,6 @@ func NewAccesspointExport(config *WifiConfig) AccesspointExport {
 
 func (export *AccesspointExport) AddLines(config *WifiConfig) {
 	export.Append("interface", config.Interface, false, INTERFACE_DEFAULT)
-	export.Append("driver", "nl80211", false)
 	export.Append("ssid", config.SSID, false)
 	export.Append("channel", "1", false)
 	export.Append("ignore_broadcast_ssid", config.ScanSSID, true)
@@ -44,8 +43,6 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 		fallthrough
 	case "":
 		export.Append("wpa", "2", false)
-		export.Append("rsn_preauth", "1", false)
-		export.Append("rsn_preauth_interfaces", config.Interface, false)
 		export.Append("wpa_key_mgmt", "WPA-PSK", false)
 		export.Append("rsn_pairwise", config.WPA.Pairwise, true)
 		export.Append("wpa_group_rekey", "600", true)

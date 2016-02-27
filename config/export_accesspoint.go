@@ -46,7 +46,7 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 		export.Append("wpa", "2", false)
 		export.Append("rsn_preauth", "1", false)
 		export.Append("rsn_preauth_interfaces", config.Interface, false)
-		export.Append("wpa_key_mhmt", "WPA-PSK", false)
+		export.Append("wpa_key_mgmt", "WPA-PSK", false)
 		export.Append("rsn_pairwise", config.WPA.Pairwise, true)
 		export.Append("wpa_group_rekey", "600", true)
 		export.Append("wpa_ptk_rekey", "600", true)

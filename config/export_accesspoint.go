@@ -43,7 +43,7 @@ func (export *AccesspointExport) AddLines(config *WifiConfig) {
 		fallthrough
 	case "":
 		export.Append("wpa", "2", false)
-		export.Append("wpa_key_mhmt", "WPA-PSK", false)
+		export.Append("wpa_key_mgmt", "WPA-PSK", false)
 		export.Append("rsn_pairwise", config.WPA.Pairwise, true)
 		export.Append("wpa_group_rekey", "600", true)
 		export.Append("wpa_ptk_rekey", "600", true)

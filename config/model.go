@@ -47,8 +47,8 @@ type WifiConfig struct {
 	ID             string // descriptional name
 	ConnectionType string `yaml:"connection_type"` // eg client, accesspoint
 	SSID           string // network id
-	ScanSSID       string `yaml:"scan_ssid"` // default 0, hidden network
-	HardwareMode   string // eg. a, b, g, n
+	ScanSSID       string `yaml:"scan_ssid"`     // default 0, hidden network
+	HardwareMode   string `yaml:"hardware_mode"` // eg. a, b, g, n
 	PSK            string // network password
 	WPA            WPAConfig
 	WEP            WEPConfig

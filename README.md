@@ -14,7 +14,10 @@ It generates config files for wpa-supplicant for WLAN configuration.
 - [x] Check existing interface config
 - [x] Prevent writing empty config files
 - [x] Improve unit test converage
+- [x] Accesspoint configuration
 
 ### Planned
 
+- [ ] Bridge configuration
+- [ ] DHCP configuration
 - [ ] Respect network order in interface export
